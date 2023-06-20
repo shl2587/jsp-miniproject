@@ -1,0 +1,81 @@
+<한승록>
+
+<1> 미니홈피 생성
+
+
+
+[1] join.jsp
+1.
+회원가입이 성공했을때 메인페이지로 가는 것이 아닌 미니 홈페이지 생성 페이지로 이동하게 수정
+
+
+[2] home-create.jsp
+1.
+GET 방식으로 페이지 이동이 이루어지면 
+form태그 안에서 param.userid를 hidden type으로
+대문글을 입력하여 POST방식으로 전달
+
+2.
+POST방식으로 데이터가 전달되면 해당 값들을
+param.userid, param.title을 통해 MinihomeDAO의 createHome메서드의 매개변수로 전달
+해당 메서드 실행 값을 c:set을 통해 var="row"에 저장
+row가 0이 아니면 가입축하 알림을 띄우고 로그인 하도록 메인화면으로 이동
+row가 0이면 미니홈피 생성에 실패했다는 메시지를 띄우고 뒤로 한페이지 이동
+
+
+[3] MinihomeDAO createHome(String userid, String title)
+1.
+sql : insert into minihome (idx, title, todayvisit, totalvisit)
+	values((select idx from member where userid=?), ?, ?, ?)
+      > 첫번째 물음표에 userid를 넣어 해당 userid에 해당하는 member idx를 호출
+      > 두번째 물음표에 title을 삽입
+      > 세번째 물음표에 생성 시 todayvisit은 0이므로 0을 넣어줌
+	(테이블 default값을 0으로 설정 변경 예정)
+      > 네번째 물음표에 생성 시 totalvisit은 0이므로 0을 넣어줌
+	(테이블 default값을 0으로 설정 변경 예정)
+
+성공하면 row에 1을 저장하여 반환 실패하면 row에 0을 저장하여 반환
+
+
+
+
+
+<2> 일촌 기능
+
+
+
+[1] minihome.jsp
+1.
+header에서 상속받은 friendDTO의 idx(로그인 한 사용자의 idx)와
+현재 미니홈피의 param.idx(일촌을 신청할 다른 사용자의 idx)가 같지 않다면
+일촌 신청이라는 a태그가 형성되도록 하고
+a태그 안에 href를 통해 myIdx로 minihomeDTO.idx와 param.idx를 application.jsp에 전송
+
+
+[2] application.jsp
+1.
+<c:set>을 통해 row에 param.myIdx와 param.frIdx를 매개변수로 전달하는
+friendDAO의 addFriend함수를 실행하여 값을 저장
+row가 0이 아니면 MemberDTO의 객체를 불러오는 friend 메서드를 실행하고 해당 값을
+<c:set>을 통해 friend에 저장
+
+
+[3] FriendDAO addFriend(int myIdx, int frIdx)
+1.
+sql : insert into friend(member, usernum) values (?, ?)
+
+member는 신청한 사람 usernum은 신청받은 사람이므로
+첫번째 물음표에 myIdx를 두번째 물음표에 frIdx를 삽입
+성공하면 row에 1을 저장하여 반환 실패하면 row에 0을 저장하여 반환
+
+
+[4] FriendDAO selectOne(int myIdx) 
+- 자신이 원하는 정보만 공개하기 위한 신청자 본인의 정보를 담은 dto객체 반환
+1.
+sql : select * from member where idx=?
+
+물음표에 myIdx를 넣어주고 rs에 해당 쿼리문의 결과값을 저장
+if 제어문(불러올 값이 한개이므로)에 rs.next()를 활용하여 dto에 해당 값을 저장하여 반환
+
+
+
