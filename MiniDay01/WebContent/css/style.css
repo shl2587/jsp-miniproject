@@ -1,0 +1,32 @@
+@charset "utf-8";
+
+
+/* common */
+a {
+	text-decoration: none;
+	color: inherit;
+}
+
+
+/* header */
+header {
+	display: flex;
+	justify-content: space-between;
+}
+
+.visitor {
+	display: flex;
+	justify-content: space-evenly;
+}
+
+.homepage_name {
+	display: flex;
+	justify-content: space-evenly;
+}
+
+
+/* index */
+.login_join {
+	display: flex;
+	justify-content: space-evenly;
+}
